@@ -52,6 +52,16 @@ return [
             'endpoint' => env('AWS_ENDPOINT'),
         ],
 
+        'sftp' => [
+            'driver' => 'sftp',
+            'host' => env('SFTP_HOST'),
+            'port' => 22,
+            'username' => env('SFTP_USER'),
+            'password' => env('SFTP_PASSWORD'),
+            'root' => '/warcmachine/',
+            'timeout' => 1000,
+        ]
+
     ],
 
     /*
