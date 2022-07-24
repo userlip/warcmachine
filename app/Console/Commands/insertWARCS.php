@@ -55,8 +55,6 @@ class insertWARCS extends Command
         fclose($out_file);
         gzclose($file);
 
-        print_r(file_get_contents($out_file_name));
-
         $handle = fopen($out_file_name, "r");
         if ($handle) {
             while (($line = fgets($handle)) !== false) {

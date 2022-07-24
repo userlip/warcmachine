@@ -8,7 +8,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Mixnode\WarcReader;
 
@@ -43,7 +42,7 @@ class ProcessWarcs implements ShouldQueue
         // extracted basename
         $basename = basename($path);
 
-        exec("aria2c -s16 -x16 -o /warc/{$basename}{$time}.warc.gz " . trim(str_replace('\r\n', '', $this->url)));
+        exec("aria2c -s16 -x16 -o ./../../../warc/{$basename}{$time}.warc.gz " . trim(str_replace('\r\n', '', $this->url)));
 
         // Initialize a WarcReader object 
         // The WarcReader constructure accepts paths to both raw WARC files and GZipped WARC files
