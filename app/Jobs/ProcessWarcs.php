@@ -46,7 +46,9 @@ class ProcessWarcs implements ShouldQueue
 
         // Initialize a WarcReader object 
         // The WarcReader constructure accepts paths to both raw WARC files and GZipped WARC files
-        $warc_reader = new WarcReader('/warc/' . $basename . $time . '.warc.gz');
+        $warc_reader = retry(3, function () use ($basename, $time) {
+            return new WarcReader('/warc/' . $basename . $time . '.warc.gz');
+        }, 100);
 
         // Using nextRecord, iterate through the WARC file and output each record.
         while (($record = $warc_reader->nextRecord()) != FALSE) {
