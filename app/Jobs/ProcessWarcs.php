@@ -49,26 +49,20 @@ class ProcessWarcs implements ShouldQueue
         // The WarcReader constructure accepts paths to both raw WARC files and GZipped WARC files
         $warc_reader = new WarcReader('/warc/' . $basename . $time . '.warc.gz');
 
-        try {
-            // Using nextRecord, iterate through the WARC file and output each record.
-            while (($record = $warc_reader->nextRecord()) != FALSE) {
+        // Using nextRecord, iterate through the WARC file and output each record.
+        while (($record = $warc_reader->nextRecord()) != FALSE) {
 
-                if (!isset($record['header']['WARC-Target-URI'])) {
-                    continue;
-                }
-
-                // Use your own regex here!
-                preg_match_all('/[\'\"\s][a-z0-9._-]{0,35}@[a-z0-9._-]+\.[a-z]{2,4}/mi', $record['content'], $matches);
-
-                foreach ($matches[0] as $match) {
-                    $data[] = array($match, $record['header']['WARC-Target-URI']);
-                }
+            if (!isset($record['header']['WARC-Target-URI'])) {
+                continue;
             }
-        } catch (\Throwable $th) {
-            Log::error($th);
+
+            // Use your own regex here!
+            preg_match_all('/[\'\"\s][a-z0-9._-]{0,35}@[a-z0-9._-]+\.[a-z]{2,4}/mi', $record['content'], $matches);
+
+            foreach ($matches[0] as $match) {
+                $data[] = array($match, $record['header']['WARC-Target-URI']);
+            }
         }
-
-
 
         // Or upload to S3
         // https://laravel.com/docs/9.x/filesystem#amazon-s3-compatible-filesystems
