@@ -56,25 +56,32 @@ class ProcessWarcs implements ShouldQueue
         // Read records
         while (FALSE !== ($record = $warc->read())) {
 
-            if (isset($record['content'])) {
-                // Use your own regex here!
-                preg_match_all('/[\'\"\s][a-z0-9._-]{0,35}@[a-z0-9._-]+\.[a-z]{2,4}/mi', $record['content'], $matches);
+            if (
+                !isset($record['content'])
+                || !isset($record['header']['WARC-Type'])
+                || $record['header']['WARC-Type'] != "response"
+            ) {
+                continue;
+            }
 
-                foreach ($matches[0] as $match) {
-                    $data[] = array($match, $record['header']['WARC-Target-URI']);
-                }
+            // Use your own regex here!
+            preg_match_all('/[\'\"\s][a-z0-9._-]{0,35}@[a-z0-9._-]+\.[a-z]{2,4}/mi', $record['content'], $matches);
+
+            foreach ($matches[0] as $match) {
+                $data[] = array($match, $record['header']['WARC-Target-URI']);
             }
         }
 
         // Or upload to S3
         // https://laravel.com/docs/9.x/filesystem#amazon-s3-compatible-filesystems
         Storage::disk('sftp')->put($basename . $time . '.txt', json_encode($data));
-        unlink('/warc/' . $basename . $time . '.warc.gz');
 
         // Close example.warc.gz
         if (FALSE === $warc->close()) {
             echo $warc->error() . PHP_EOL;
             exit();
         }
+
+        unlink('/warc/' . $basename . $time . '.warc.gz');
     }
 }
