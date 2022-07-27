@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Mixnode\WarcReader;
+use App\Http\Controllers\WarcReader;
 
 class ProcessWarcs implements ShouldQueue
 {
@@ -45,22 +45,24 @@ class ProcessWarcs implements ShouldQueue
 
         exec("aria2c -s16 -x16 -o ./../../../warc/{$basename}{$time}.warc.gz " . trim(str_replace('\r\n', '', $this->url)));
 
-        // Initialize a WarcReader object 
-        // The WarcReader constructure accepts paths to both raw WARC files and GZipped WARC files
-        $warc_reader = new WarcReader('/warc/' . $basename . $time . '.warc.gz');
+        $warc = new WarcReader();
 
-        // Using nextRecord, iterate through the WARC file and output each record.
-        while (($record = $warc_reader->nextRecord()) != FALSE) {
+        // Open example.warc.gz
+        if (FALSE === $warc->open('/warc/' . $basename . $time . '.warc.gz')) {
+            Log::alert('Error opening file');
+            exit();
+        }
 
-            if (!isset($record['header']['WARC-Target-URI'])) {
-                continue;
-            }
+        // Read records
+        while (FALSE !== ($record = $warc->read())) {
 
-            // Use your own regex here!
-            preg_match_all('/[\'\"\s][a-z0-9._-]{0,35}@[a-z0-9._-]+\.[a-z]{2,4}/mi', $record['content'], $matches);
+            if (isset($record['content'])) {
+                // Use your own regex here!
+                preg_match_all('/[\'\"\s][a-z0-9._-]{0,35}@[a-z0-9._-]+\.[a-z]{2,4}/mi', $record['content'], $matches);
 
-            foreach ($matches[0] as $match) {
-                $data[] = array($match, $record['header']['WARC-Target-URI']);
+                foreach ($matches[0] as $match) {
+                    $data[] = array($match, $record['header']['WARC-Target-URI']);
+                }
             }
         }
 
@@ -68,5 +70,11 @@ class ProcessWarcs implements ShouldQueue
         // https://laravel.com/docs/9.x/filesystem#amazon-s3-compatible-filesystems
         Storage::disk('sftp')->put($basename . $time . '.txt', json_encode($data));
         unlink('/warc/' . $basename . $time . '.warc.gz');
+
+        // Close example.warc.gz
+        if (FALSE === $warc->close()) {
+            echo $warc->error() . PHP_EOL;
+            exit();
+        }
     }
 }
