@@ -72,9 +72,7 @@ class ProcessWarcs implements ShouldQueue
             }
         }
 
-        // Or upload to S3
-        // https://laravel.com/docs/9.x/filesystem#amazon-s3-compatible-filesystems
-        Storage::disk('sftp')->put($basename . $time . '.txt', json_encode($data));
+        uploadResults::dispatch('/warc/' . $basename . $time . '.warc.gz', $data);
 
         // Close example.warc.gz
         if (FALSE === $warc->close()) {
