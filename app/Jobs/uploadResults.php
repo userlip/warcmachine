@@ -22,7 +22,7 @@ class uploadResults implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($data, $filename)
+    public function __construct($filename, $data)
     {
         $this->data = $data;
         $this->filename = $filename;
