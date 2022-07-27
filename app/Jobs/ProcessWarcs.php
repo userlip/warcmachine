@@ -72,7 +72,7 @@ class ProcessWarcs implements ShouldQueue
             }
         }
 
-        uploadResults::dispatch('/warc/' . $basename . $time . '.warc.gz', $data);
+        uploadResults::dispatch('/warc/' . $basename . $time . '.txt', $data);
 
         // Close example.warc.gz
         if (FALSE === $warc->close()) {
