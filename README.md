@@ -95,7 +95,7 @@ But what about the Network speed and the time it takes to download the WARCs?
 
 8. Edit the ProcessWarcs Job and add your own regex
 9. Edit the UploadResults Job and add your own storage
-10. Go to Hetzner and start 10 CX21 Servers at a time with the following config:
+10. Go to Hetzner and start 10 CX21 Servers at a time with the following config: EDIT!: USE UBUNTU 22.04 - I DID NOT TEST UBUNTU 20.04
 
 ![Image](https://raw.githubusercontent.com/userlip/warcmachine/main/Hetzner.png)
 
