@@ -104,7 +104,11 @@ class WarcReader extends Controller
                         $header['Version'] = trim($parts[0]);
                         break;
                     default:
-                        $header[trim($parts[0])] = trim($parts[1]);
+                        if (isset($parts[1])) {
+                            $header[trim($parts[0])] = trim($parts[1]);
+                        } else {
+                            $header[trim($parts[0])] = '';
+                        }
                         break;
                 }
                 $line = gzgets($this->handle);
@@ -121,11 +125,11 @@ class WarcReader extends Controller
                     $this->error = 'Read error';
                     return FALSE;
                 } else {
-                    $content = mb_convert_encoding($content, 'UTF-8');
-                    if (FALSE === $content) {
-                        $this->error = 'Error converting to UTF-8';
-                        return FALSE;
-                    }
+                    // $content = mb_convert_encoding($content, 'UTF-8');
+                    // if (FALSE === $content) {
+                    //     $this->error = 'Error converting to UTF-8';
+                    //     return FALSE;
+                    // }
                 }
 
                 $line = gzgets($this->handle);
